@@ -1,0 +1,31 @@
+{
+    "date": "2026-02-17",
+    "time": "04.00 PM",
+    "venue": "SM Room",
+    "year": [
+        2,
+        3,
+        4
+    ],
+    "department": [
+        "CIVIL",
+        "AI&DS",
+        "CSBS",
+        "CSE",
+        "ECE",
+        "EEE",
+        "IT",
+        "MCT"
+    ],
+    "points": [
+        {
+            "topic": "fcbzcb",
+            "discussion": "zcfbzfb"
+        }
+    ],
+    "attendance": [
+        "SHREYA P",
+        "DHANUSHRI R",
+        "VINOTHA D"
+    ]
+}
