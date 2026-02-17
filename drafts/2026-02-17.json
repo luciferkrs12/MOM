@@ -1,31 +1,26 @@
 {
     "date": "2026-02-17",
     "time": "04.00 PM",
-    "venue": "SM Room",
     "year": [
-        2,
-        3,
-        4
+        2
     ],
     "department": [
-        "CIVIL",
-        "AI&DS",
-        "CSBS",
-        "CSE",
-        "ECE",
-        "EEE",
-        "IT",
-        "MCT"
+        "AI&DS"
     ],
     "points": [
         {
-            "topic": "fcbzcb",
-            "discussion": "zcfbzfb"
+            "topic": "asfsfs",
+            "discussion": "frfgergergergr"
+        },
+        {
+            "topic": "erge",
+            "discussion": "rgerg"
         }
     ],
     "attendance": [
-        "SHREYA P",
-        "DHANUSHRI R",
-        "VINOTHA D"
+        "ARUN NITHEES T",
+        "DHARSHANA E V",
+        "NIVETHITHA S",
+        "SIVASRI C"
     ]
 }

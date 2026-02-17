@@ -12,7 +12,7 @@ from fpdf import FPDF
 # --- PAGE CONFIG ---
 st.set_page_config(
     page_title="SM MOM ",
-    page_icon="📋",
+    page_icon="Logo/Picsart_23-05-18_16-47-20-287-removebg-preview.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -268,19 +268,6 @@ if df.empty:
 
 # --- MAIN CONTENT ---
 
-# ACTION BUTTONS AT TOP
-col_empty1, col_save_top, col_gen_top, col_empty2 = st.columns([1, 2, 2, 1])
-
-with col_save_top:
-    if st.button("💾 Save Draft", type="secondary", use_container_width=True, key="save_top"):
-        # We'll handle this after all data is collected
-        st.session_state.save_requested = True
-
-with col_gen_top:
-    if st.button("🚀 Generate Reports", type="primary", use_container_width=True, key="gen_top"):
-        st.session_state.generate_requested = True
-
-st.markdown("<br>", unsafe_allow_html=True)
 
 # SECTION 1: MEETING DETAILS
 with st.container():
@@ -447,7 +434,22 @@ with st.container(border=True):
 
 st.markdown("<div class='spacer'></div>", unsafe_allow_html=True)
 
-# Handle Save Draft Request (from top button)
+# ACTION BUTTONS AT BOTTOM
+st.markdown("<br>", unsafe_allow_html=True)
+col_empty1, col_save_bottom, col_gen_bottom, col_empty2 = st.columns([1, 2, 2, 1])
+
+with col_save_bottom:
+    if st.button("💾 Save Draft", type="secondary", use_container_width=True, key="save_bottom"):
+        # We'll handle this after all data is collected
+        st.session_state.save_requested = True
+
+with col_gen_bottom:
+    if st.button("🚀 Generate Reports", type="primary", use_container_width=True, key="gen_bottom"):
+        st.session_state.generate_requested = True
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# Handle Save Draft Request (from bottom button)
 if st.session_state.get("save_requested", False):
     # Collect data
     att_names = [s["NAME"] for s in present_students]
@@ -579,20 +581,52 @@ if st.session_state.get("generate_requested", False):
         # --- DISCUSSION ---
         if st.session_state.points:
             heading = doc.add_paragraph()
-            run = heading.add_run("DISCUSSION POINTS")
+            run = heading.add_run("Discussed in Today's SM Room Meeting:")
             run.bold = True
             run.font.size = Pt(12)
+            
+            # Create main discussion table
+            disc_table = doc.add_table(rows=0, cols=2)
+            disc_table.style = 'Table Grid'
+            disc_table.autofit = False
+            disc_table.columns[0].width = Inches(1.5)
+            disc_table.columns[1].width = Inches(5.0)
+            
             for i, p in enumerate(st.session_state.points, start=1):
-                pt_table = doc.add_table(rows=1, cols=1)
-                pt_table.autofit = False
-                pt_table.columns[0].width = Inches(6.5)
-                cell = pt_table.rows[0].cells[0]
-                p_topic = cell.paragraphs[0]
-                run_topic = p_topic.add_run(f"{i}. {p['topic']}")
-                run_topic.bold = True
-                run_topic.font.color.rgb = RGBColor(79, 70, 229) 
-                p_content = cell.add_paragraph(p["discussion"])
-                doc.add_paragraph() 
+                # Point row
+                point_row = disc_table.add_row()
+                point_cell = point_row.cells[0]
+                point_para = point_cell.paragraphs[0]
+                point_run = point_para.add_run(f"Point : {i}")
+                point_run.bold = True
+                point_run.font.size = Pt(11)
+                
+                # Topic in second column
+                topic_cell = point_row.cells[1]
+                topic_para = topic_cell.paragraphs[0]
+                topic_run = topic_para.add_run(p['topic'])
+                topic_run.font.size = Pt(11)
+                
+                # Discussion row
+                disc_row = disc_table.add_row()
+                disc_label_cell = disc_row.cells[0]
+                disc_label_para = disc_label_cell.paragraphs[0]
+                disc_label_run = disc_label_para.add_run("Discussion")
+                disc_label_run.bold = True
+                disc_label_run.font.size = Pt(11)
+                
+                # Discussion content in second column
+                disc_content_cell = disc_row.cells[1]
+                disc_content_para = disc_content_cell.paragraphs[0]
+                
+                # Split discussion by newlines and add as bullet points
+                discussion_lines = p["discussion"].split('\n')
+                for line in discussion_lines:
+                    if line.strip():
+                        disc_content_para.add_run(f"• {line.strip()}\n")
+                        disc_content_para.runs[-1].font.size = Pt(11)
+            
+            doc.add_paragraph()
         else:
              doc.add_paragraph("No specific discussion points recorded.")
 
@@ -666,16 +700,35 @@ if st.session_state.get("generate_requested", False):
         # Discussion
         if st.session_state.points:
             pdf.set_font("Arial", 'B', 12)
-            pdf.cell(0, 10, "DISCUSSION POINTS", 0, 1, 'L')
+            pdf.cell(0, 10, "Discussed in Today's SM Room Meeting:", 0, 1, 'L')
+            pdf.ln(5)
             
-            pdf.set_font("Arial", '', 12)
+            # Table header style
+            pdf.set_fill_color(240, 240, 240)
+            
             for i, p in enumerate(st.session_state.points, 1):
-                pdf.set_text_color(79, 70, 229) # Indigo
-                pdf.cell(0, 8, f"{i}. {p['topic']}", 0, 1, 'L')
-                pdf.set_text_color(0, 0, 0) # Black
-                # Basic approach for multi-line description without complex text layout
-                pdf.multi_cell(0, 6, p["discussion"])
+                # Point row
+                pdf.set_font("Arial", 'B', 11)
+                pdf.cell(40, 10, f"Point : {i}", 1, 0, 'L', 1)
+                pdf.set_font("Arial", '', 11)
+                pdf.cell(150, 10, p['topic'], 1, 1, 'L')
+                
+                # Discussion row
+                pdf.set_font("Arial", 'B', 11)
+                pdf.cell(40, 10, "Discussion", 1, 0, 'L', 1)
+                
+                # Discussion content with bullet points
+                pdf.set_font("Arial", '', 11)
+                discussion_lines = p["discussion"].split('\n')
+                discussion_text = '\n'.join([f"• {line.strip()}" for line in discussion_lines if line.strip()])
+                
+                # Get current position for multi_cell
+                x_pos = pdf.get_x()
+                y_pos = pdf.get_y()
+                pdf.multi_cell(150, 6, discussion_text, 1, 'L')
+                
                 pdf.ln(2)
+        
         
         pdf.ln(20)
         
